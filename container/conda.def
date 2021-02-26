@@ -5,8 +5,10 @@ From: ubuntu:18.04
     MINICONDA=https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
 
     apt-get -y update
-    apt-get install -y wget locales
+    apt-get install -y wget locales git
     locale-gen en_US.UTF-8
+    rm /bin/sh
+    ln -s /bin/bash /bin/sh
     wget --no-check-certificate $MINICONDA
     sh Miniconda3-latest-Linux-x86_64.sh -b -p /opt/miniconda
     PATH=$PATH:/opt/miniconda/bin
@@ -14,7 +16,15 @@ From: ubuntu:18.04
     conda create -n V-pipe -c conda-forge -c bioconda python=3.8 snakemake-minimal=5.14.0
 
 %environment
-    export PATH=$PATH:/opt/miniconda/bin
-    conda init bash
-    source $HOME/.bashrc
+    __conda_setup="$('/opt/miniconda/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+    if [ $? -eq 0 ]; then
+        eval "$__conda_setup"
+    else
+        if [ -f "/opt/miniconda/etc/profile.d/conda.sh" ]; then
+            . "/opt/miniconda/etc/profile.d/conda.sh"
+        else
+            export PATH="/opt/miniconda/bin:$PATH"
+        fi
+    fi
+    unset __conda_setup
     conda activate V-pipe

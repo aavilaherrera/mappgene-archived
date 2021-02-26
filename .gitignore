@@ -6,6 +6,7 @@
 *.core
 *.out
 *.pyc
+*.fasta
 input/
 output/
 runinfo/

@@ -31,6 +31,8 @@ def smart_copy(src, dest, exclude=[]):
         print("Warning: ignoring smart_copy because src and dest both point to {}".format(dest))
         return
     smart_remove(dest)
+    if not exists(dirname(dest)):
+        smart_mkdir(dirname(dest))
     if isdir(src):
         copytree(src, dest, ignore=ignore_patterns(*exclude))
     else:
@@ -60,8 +62,9 @@ def run(command, params=None, ignore_errors=False, print_output=True, print_time
     # When using a container, change all paths to be relative to its mounted directory (hideous, but works without changing other code)
     if container is not None:
         odir = split(sdir)[0]
-        command = command.replace(odir, "/share")
-        command = "singularity exec{} -B {}:/share {} {}".format(" --nv" if use_gpu else "", odir, container, command)
+        command = command.replace(odir, "/mnt")
+        command = "singularity exec{} -B {}:/mnt {} {}".format(" --nv" if use_gpu else "", odir, container, command)
+        print(command)
         if container_cwd:
             command = "cd {}; {}".format(container_cwd, command)
         if stdout:
