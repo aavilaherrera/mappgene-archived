@@ -1,0 +1,15 @@
+.*
+*.sif
+*.stdout
+*.json
+*.qsub
+*.core
+*.out
+*.pyc
+input/
+output/
+runinfo/
+cmd_parsl.auto*
+!examples/*.json
+!.gitignore
+!.gitattributes
