@@ -67,7 +67,7 @@ if __name__ == '__main__':
             init_blocks=1,
             max_blocks=1,
             worker_init=f"export PYTHONPATH=$PYTHONPATH:{os.getcwd()}",
-            walltime="00:05:00",
+            walltime="00:60:00",
             scheduler_options="#SBATCH --exclusive\n#SBATCH -A {}\n".format(args.bank),
             move_files=False,
         ),

@@ -377,3 +377,39 @@ def validate(file, params={}):
     mean = run("fslstats {} -m | head -n 1".format(file), params)
     assert is_float(mean), "Invalid mean value in {}".format(file)
     assert float(mean) != 0, "Zero mean value in {}".format(file)
+
+def deinterlace(sequence_file, forward_file, reverse_file):
+
+    if sequence_file.endswith('.gz'):
+        run(f"gzip -k -d {sequence_file}")
+        sequence_file = sequence_file[:-3]
+
+    smart_remove(forward_file)
+    smart_remove(reverse_file)
+    smart_remove(forward_file + '.gz')
+    smart_remove(reverse_file + '.gz')
+
+    i = 0
+    forward = True
+    file_size = getsize(sequence_file)
+    chunk_size = 0
+    with open(sequence_file) as f1:
+        while True:
+            lines = list(islice(f1, 4))
+            if not lines:
+                break
+            with open(forward_file if forward else reverse_file, 'a') as f2:
+                f2.write(''.join(lines))
+            i += 1
+            forward = not forward
+
+            if chunk_size == 0:
+                chunk_size = len(''.join(lines).encode('ascii')) - 1
+            if i % 1000 == 0:
+                print("Deinterlacing {}, {:.2%}...".format(sequence_file, chunk_size * i / file_size))
+    
+    run(f"gzip {forward_file}")
+    run(f"gzip {reverse_file}")
+
+    smart_remove(sequence_file)
+            
