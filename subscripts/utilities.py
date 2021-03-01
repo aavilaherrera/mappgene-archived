@@ -1,9 +1,10 @@
 import time,datetime,os,subprocess,sys,shutil,hashlib,grp,mmap,fnmatch,gzip,re
 from glob import glob
-from os.path import exists,join,split,splitext,abspath,basename,dirname,isdir,samefile
+from os.path import exists,join,split,splitext,abspath,basename,dirname,isdir,samefile,getsize
 from shutil import copyfile,copytree,rmtree,ignore_patterns
 from os import system,environ,makedirs,remove
 from subprocess import Popen,PIPE
+from itertools import islice
 
 def smart_mkdir(path):
     if exists(path):
