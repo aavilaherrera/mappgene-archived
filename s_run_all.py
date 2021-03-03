@@ -40,7 +40,7 @@ parse_default('partition', 'pbatch', args, pending_args)
 parse_default('retries', 0, args, pending_args)
 parse_default('force', False, args, pending_args)
 parse_default('container', "container/image.sif", args, pending_args)
-parse_default('nnodes', 3, args, pending_args)
+parse_default('nnodes', 1, args, pending_args)
 
 if __name__ == '__main__':
 
@@ -67,7 +67,7 @@ if __name__ == '__main__':
             init_blocks=1,
             max_blocks=1,
             worker_init=f"export PYTHONPATH=$PYTHONPATH:{os.getcwd()}",
-            walltime="00:60:00",
+            walltime="01:59:00",
             scheduler_options="#SBATCH --exclusive\n#SBATCH -A {}\n".format(args.bank),
             move_files=False,
         ),
@@ -95,7 +95,8 @@ if __name__ == '__main__':
         for f in glob.glob(join(input_dir, '*.fastq.gz')):
             smart_copy(f, join(output_dir, 'samples/a/b/raw_data', basename(f)))
         
-        ncores = int(math.floor(multiprocessing.cpu_count() / 2))
+        # ncores = int(math.floor(multiprocessing.cpu_count() / 2))
+        ncores = 1
         run(f'sh -c "cd {output_dir} && ./vpipe --cores {ncores}"', params)
 
     # Assign parallel workers

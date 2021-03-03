@@ -1,12 +1,10 @@
 .*
-*.sif
 *.stdout
 *.json
 *.qsub
 *.core
 *.out
 *.pyc
-*.fasta
 input/
 output/
 runinfo/
