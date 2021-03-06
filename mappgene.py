@@ -26,7 +26,6 @@ else:
     parser.add_argument('--nnodes', '-n', help='Number of nodes.')
     parser.add_argument('--bank', '-b', help='Bank to charge for jobs.')
     parser.add_argument('--partition', '-p', help='Scheduler partition to assign jobs.')
-    parser.add_argument('--retries', help='Number of times to retry failed tasks.')
     parser.add_argument('--force', '-f', help='Overwrite existing outputs.', action='store_true')
     parser.add_argument('--container', help='Path to Singularity container image.')
     parser.add_argument('--walltime', '-t', help='Walltime in format HH:MM:SS.')
@@ -38,7 +37,6 @@ parse_default('input_dirs', 'input/', args, pending_args)
 parse_default('output_dirs', 'output/', args, pending_args)
 parse_default('bank', 'asccasc', args, pending_args)
 parse_default('partition', 'pbatch', args, pending_args)
-parse_default('retries', 0, args, pending_args)
 parse_default('force', False, args, pending_args)
 parse_default('container', "container/image.sif", args, pending_args)
 parse_default('nnodes', 1, args, pending_args)
@@ -78,8 +76,6 @@ if __name__ == '__main__':
     }
 
     config = parsl.config.Config(executors=[executor])
-    config.retries = int(args.retries)
-    config.checkpoint_mode = 'task_exit'
     parsl.set_stream_logger()
     parsl.load(config)
 
@@ -98,8 +94,7 @@ if __name__ == '__main__':
             smart_copy(f, join(work_dir, 'samples/a/b/raw_data', basename(f)))
         
         ncores = int(math.floor(multiprocessing.cpu_count() / 2))
-        # ncores = 1
-        run(f'sh -c "cd {work_dir} && ./vpipe --cores {ncores}"', params)
+        run(f'sh -c "cd {work_dir} && ./vpipe --cores {ncores} --use-conda"', params)
         time.sleep(10)
         smart_copy(join(work_dir, 'samples/a/b/alignments'), join(output_dir, 'alignments'))
 
