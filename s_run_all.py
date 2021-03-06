@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse,multiprocessing,parsl,getpass,socket,json,sys,re,glob,math
+from distutils.dir_util import copy_tree
 from parsl.app.app import python_app,bash_app
 from parsl.executors import ThreadPoolExecutor,HighThroughputExecutor
 from parsl.providers import LocalProvider,SlurmProvider
@@ -23,7 +24,6 @@ else:
     parser.add_argument('--input_dirs', '-i', help='Path to inputs. Subdirectories must contain subject genomes in FASTQ format.')
     parser.add_argument('--output_dirs', '-o', help='Path to outputs.')
     parser.add_argument('--nnodes', '-n', help='Number of nodes.')
-    parser.add_argument('--reference', help='Path to reference genomes in FASTA format.')
     parser.add_argument('--bank', '-b', help='Bank to charge for jobs.')
     parser.add_argument('--partition', '-p', help='Scheduler partition to assign jobs.')
     parser.add_argument('--retries', help='Number of times to retry failed tasks.')
@@ -35,7 +35,6 @@ else:
 pending_args = args.__dict__.copy()
 parse_default('input_dirs', 'input/', args, pending_args)
 parse_default('output_dirs', 'output/', args, pending_args)
-parse_default('reference', 'references/', args, pending_args)
 parse_default('bank', 'ncov2019', args, pending_args)
 parse_default('partition', 'pbatch', args, pending_args)
 parse_default('retries', 0, args, pending_args)
@@ -52,9 +51,7 @@ if __name__ == '__main__':
     git_dir = join('tmp', 'vpipe')
     git_params = {'sdir':git_dir, 'container':args.container}
     run(f'git clone https://github.com/cbg-ethz/V-pipe.git {git_dir}', git_params)
-    # smart_mkdir(join(git_dir, 'samples/a/b/raw_data'))
-    for f in glob(join(args.reference, '*.fasta')):
-        smart_copy(f, join(git_dir, 'references', basename(f)))
+    copy_tree('vpipe_files', join(git_dir))
     run(f'sh -c "cd {git_dir} && sh init_project.sh" || true', git_params)
 
     # executor = ThreadPoolExecutor(label="worker")
