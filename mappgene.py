@@ -87,24 +87,27 @@ if __name__ == '__main__':
     def run_worker(input_dir, output_dir, params):
         import math,multiprocessing,glob
         from os.path import basename,join
-        from subscripts.utilities import smart_copy,smart_copy,run
+        from subscripts.utilities import smart_copy,smart_copy,smart_mkdir,run
 
-        params['sdir'] = output_dir
-        params['stdout'] = join(output_dir, 'worker.stdout')
-        smart_copy(params['git_dir'], output_dir)
+        work_dir = join(output_dir, 'work_dir')
+        smart_mkdir(work_dir)
+        params['sdir'] = work_dir
+        params['stdout'] = join(work_dir, 'worker.stdout')
+        smart_copy(params['git_dir'], work_dir)
         for f in glob.glob(join(input_dir, '*.fastq.gz')):
-            smart_copy(f, join(output_dir, 'samples/a/b/raw_data', basename(f)))
+            smart_copy(f, join(work_dir, 'samples/a/b/raw_data', basename(f)))
         
         ncores = int(math.floor(multiprocessing.cpu_count() / 2))
         # ncores = 1
-        run(f'sh -c "cd {output_dir} && ./vpipe --cores {ncores}"', params)
+        run(f'sh -c "cd {work_dir} && ./vpipe --cores {ncores}"', params)
+
+        for f in glob.glob(join(work_dir, 'samples/a/b/alignments/*')):
+            smart_copy(f, join(output_dir, basename(f)))
 
     input_dirs = glob(join(args.input_dirs, '*'))
     if args.single_subject != '':
         input_dirs = [join(args.input_dirs, args.single_subject)]
         print(f"WARNING: only running --single_subject {args.single_subject}")
-    print(input_dirs)
-    exit()
     
     # Assign parallel workers
     results =  []
