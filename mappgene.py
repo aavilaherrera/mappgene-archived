@@ -36,13 +36,13 @@ else:
 pending_args = args.__dict__.copy()
 parse_default('input_dirs', 'input/', args, pending_args)
 parse_default('output_dirs', 'output/', args, pending_args)
-parse_default('bank', 'ncov2019', args, pending_args)
-parse_default('partition', 'pbatch', args, pending_args)
+parse_default('bank', 'asccasc', args, pending_args)
+parse_default('partition', 'pdebug', args, pending_args)
 parse_default('retries', 0, args, pending_args)
 parse_default('force', False, args, pending_args)
 parse_default('container', "container/image.sif", args, pending_args)
 parse_default('nnodes', 1, args, pending_args)
-parse_default('walltime', '11:59:00', args, pending_args)
+parse_default('walltime', '00:59:00', args, pending_args)
 parse_default('single_subject', '', args, pending_args)
 
 if __name__ == '__main__':
