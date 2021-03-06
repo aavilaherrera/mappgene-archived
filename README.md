@@ -15,7 +15,7 @@ Massively adaptive, parallel, and portable genomic sequence analysis.
 `python3 mappgene.py`
 <br></br><br></br>
 
-<b>Optional arguments</b>
+<b>Specify arguments</b>
 
 `python3 mappgene.py <arg1>=val1 <arg2>=val2 etc...`
 

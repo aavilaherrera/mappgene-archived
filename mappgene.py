@@ -37,12 +37,12 @@ pending_args = args.__dict__.copy()
 parse_default('input_dirs', 'input/', args, pending_args)
 parse_default('output_dirs', 'output/', args, pending_args)
 parse_default('bank', 'asccasc', args, pending_args)
-parse_default('partition', 'pdebug', args, pending_args)
+parse_default('partition', 'pbatch', args, pending_args)
 parse_default('retries', 0, args, pending_args)
 parse_default('force', False, args, pending_args)
 parse_default('container', "container/image.sif", args, pending_args)
 parse_default('nnodes', 1, args, pending_args)
-parse_default('walltime', '00:59:00', args, pending_args)
+parse_default('walltime', '11:59:00', args, pending_args)
 parse_default('single_subject', '', args, pending_args)
 
 if __name__ == '__main__':
@@ -85,7 +85,7 @@ if __name__ == '__main__':
 
     @python_app(executors=['worker'], cache=True)
     def run_worker(input_dir, output_dir, params):
-        import math,multiprocessing,glob
+        import math,multiprocessing,glob,time
         from os.path import basename,join
         from subscripts.utilities import smart_copy,smart_copy,smart_mkdir,run
 
@@ -100,9 +100,8 @@ if __name__ == '__main__':
         ncores = int(math.floor(multiprocessing.cpu_count() / 2))
         # ncores = 1
         run(f'sh -c "cd {work_dir} && ./vpipe --cores {ncores}"', params)
-
-        for f in glob.glob(join(work_dir, 'samples/a/b/alignments/*')):
-            smart_copy(f, join(output_dir, basename(f)))
+        time.sleep(10)
+        smart_copy(join(work_dir, 'samples/a/b/alignments'), join(output_dir, 'alignments'))
 
     input_dirs = glob(join(args.input_dirs, '*'))
     if args.single_subject != '':

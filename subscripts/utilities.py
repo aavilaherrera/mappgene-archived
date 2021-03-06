@@ -27,7 +27,9 @@ def smart_copy(src, dest, exclude=[]):
     """Copy file or directory, while ignoreing non-existent or equivalent files
     """
     if not exists(src):
-        raise Exception("Cannot find file to copy: {}".format(src))
+        print("ERROR: Cannot find file to copy: {}".format(src))
+        return
+        # raise Exception("Cannot find file to copy: {}".format(src))
     if exists(dest) and samefile(src, dest):
         print("Warning: ignoring smart_copy because src and dest both point to {}".format(dest))
         return
