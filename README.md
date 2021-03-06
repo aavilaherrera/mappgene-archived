@@ -1,18 +1,19 @@
 # MAPPgene
 
 Massively adaptive, parallel, and portable genomic sequence analysis.
-<br></br>
+<br></br><br></br>
 
 ## Installation
 
 `git clone https://lc.llnl.gov/bitbucket/scm/vg/mappgene.git`
 
 `pip3 install --user parsl`
-<br></br>
+<br></br><br></br>
 
 ## Running
 
 `python3 mappgene.py`
+<br></br><br></br>
 
 ### Optional arguments
 
