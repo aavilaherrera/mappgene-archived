@@ -30,6 +30,7 @@ else:
     parser.add_argument('--force', '-f', help='Overwrite existing outputs.', action='store_true')
     parser.add_argument('--container', help='Path to Singularity container image.')
     parser.add_argument('--walltime', '-t', help='Walltime in format HH:MM:SS.')
+    parser.add_argument('--single_subject', help='Run with just a single subject from the input directory.')
     args = parser.parse_args()
 
 pending_args = args.__dict__.copy()
@@ -42,6 +43,7 @@ parse_default('force', False, args, pending_args)
 parse_default('container', "container/image.sif", args, pending_args)
 parse_default('nnodes', 1, args, pending_args)
 parse_default('walltime', '11:59:00', args, pending_args)
+parse_default('single_subject', '', args, pending_args)
 
 if __name__ == '__main__':
 
@@ -58,7 +60,6 @@ if __name__ == '__main__':
     executor = HighThroughputExecutor(
         label="worker",
         address=address_by_hostname(),
-        # cores_per_worker=int(math.floor(multiprocessing.cpu_count() / 2)),
         provider=SlurmProvider(
             args.partition,
             launcher=parsl.launchers.SrunLauncher(),
@@ -98,9 +99,16 @@ if __name__ == '__main__':
         # ncores = 1
         run(f'sh -c "cd {output_dir} && ./vpipe --cores {ncores}"', params)
 
+    input_dirs = glob(join(args.input_dirs, '*'))
+    if args.single_subject != '':
+        input_dirs = [join(args.input_dirs, args.single_subject)]
+        print(f"WARNING: only running --single_subject {args.single_subject}")
+    print(input_dirs)
+    exit()
+    
     # Assign parallel workers
     results =  []
-    for input_dir in glob(join(args.input_dirs, '*')):
+    for input_dir in input_dirs:
         output_dir = join(args.output_dirs, basename(input_dir))
         if exists(output_dir):
             if not args.force:
