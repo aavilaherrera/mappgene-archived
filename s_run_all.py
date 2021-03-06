@@ -29,6 +29,7 @@ else:
     parser.add_argument('--retries', help='Number of times to retry failed tasks.')
     parser.add_argument('--force', '-f', help='Overwrite existing outputs.', action='store_true')
     parser.add_argument('--container', help='Path to Singularity container image.')
+    parser.add_argument('--walltime', '-t', help='Walltime in format HH:MM:SS.')
     args = parser.parse_args()
 
 pending_args = args.__dict__.copy()
@@ -41,6 +42,7 @@ parse_default('retries', 0, args, pending_args)
 parse_default('force', False, args, pending_args)
 parse_default('container', "container/image.sif", args, pending_args)
 parse_default('nnodes', 1, args, pending_args)
+parse_default('walltime', '11:59:00', args, pending_args)
 
 if __name__ == '__main__':
 
@@ -67,7 +69,7 @@ if __name__ == '__main__':
             init_blocks=1,
             max_blocks=1,
             worker_init=f"export PYTHONPATH=$PYTHONPATH:{os.getcwd()}",
-            walltime="01:59:00",
+            walltime=args.walltime,
             scheduler_options="#SBATCH --exclusive\n#SBATCH -A {}\n".format(args.bank),
             move_files=False,
         ),
@@ -95,8 +97,8 @@ if __name__ == '__main__':
         for f in glob.glob(join(input_dir, '*.fastq.gz')):
             smart_copy(f, join(output_dir, 'samples/a/b/raw_data', basename(f)))
         
-        # ncores = int(math.floor(multiprocessing.cpu_count() / 2))
-        ncores = 1
+        ncores = int(math.floor(multiprocessing.cpu_count() / 2))
+        # ncores = 1
         run(f'sh -c "cd {output_dir} && ./vpipe --cores {ncores}"', params)
 
     # Assign parallel workers
