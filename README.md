@@ -9,8 +9,8 @@ Massively adaptive, parallel, and portable genomic sequence analysis.
 
 # Running
 
-`python3 s_run_all.py <arg1>=val1 <arg2>=val2 etc...`
+`python3 mappgene.py <arg1>=val1 <arg2>=val2 etc...`
 
 **OR**
 
-`python3 s_run_all.py <config_json>`
+`python3 mappgene.py <config_json>`
