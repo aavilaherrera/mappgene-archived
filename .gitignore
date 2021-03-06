@@ -5,7 +5,6 @@
 *.core
 *.out
 *.pyc
-input/
 output/
 runinfo/
 tmp/
@@ -13,3 +12,6 @@ cmd_parsl.auto*
 !examples/*.json
 !.gitignore
 !.gitattributes
+
+input/*
+!input/example
