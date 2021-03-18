@@ -31,6 +31,7 @@ else:
     parser.add_argument('--container', help='Path to Singularity container image.')
     parser.add_argument('--walltime', '-t', help='Walltime in format HH:MM:SS.')
     parser.add_argument('--single_subject', help='Run with just a single subject from the input directory.')
+    parser.add_argument('--read_length', help='Read length in sample.tsv (see cbg-ethz.github.io/V-pipe/tutorial/sars-cov2).')
     args = parser.parse_args()
 
 pending_args = args.__dict__.copy()
@@ -44,6 +45,7 @@ parse_default('container', "container/image.sif", args, pending_args)
 parse_default('nnodes', 1, args, pending_args)
 parse_default('walltime', '11:59:00', args, pending_args)
 parse_default('single_subject', '', args, pending_args)
+parse_default('read_length', 250, args, pending_args)
 
 if __name__ == '__main__':
 
@@ -83,12 +85,14 @@ if __name__ == '__main__':
     parsl.set_stream_logger()
     parsl.load(config)
 
+
     @python_app(executors=['worker'], cache=True)
     def run_worker(input_dir, output_dir, params):
-        import math,multiprocessing,glob,time
+        import math,multiprocessing,glob,time,csv
         from os.path import basename,join
-        from subscripts.utilities import smart_copy,smart_copy,smart_mkdir,run
+        from subscripts.utilities import smart_copy,smart_mkdir,run
 
+        # Setup parameters and input data
         work_dir = join(output_dir, 'work_dir')
         smart_mkdir(work_dir)
         params['sdir'] = work_dir
@@ -97,17 +101,29 @@ if __name__ == '__main__':
         for f in glob.glob(join(input_dir, '*.fastq.gz')):
             smart_copy(f, join(work_dir, 'samples/a/b/raw_data', basename(f)))
         
+        # Update sample.tsv with read length
+        run(f'sh -c "cd {work_dir} && ./vpipe --dryrun"', params)
+        samples_tsv = join(work_dir, 'samples.tsv')
+        with open(samples_tsv, 'r') as fr, open(f'{samples_tsv}.tmp', 'w') as fw:
+            r = csv.reader(fr, delimiter='\t')
+            w = csv.writer(fw, delimiter='\t')
+            for row in r:
+                row.append(args.read_length)
+                w.writerow(row)
+        smart_copy(f'{samples_tsv}.tmp', samples_tsv)
+
+        # Run V-pipe analysis
         ncores = int(math.floor(multiprocessing.cpu_count() / 2))
         run(f'sh -c "cd {work_dir} && ./vpipe --cores {ncores} --use-conda"', params)
         time.sleep(10)
         smart_copy(join(work_dir, 'samples/a/b/alignments'), join(output_dir, 'alignments'))
 
+    
+    # Assign parallel workers
     input_dirs = glob(join(args.input_dirs, '*'))
     if args.single_subject != '':
         input_dirs = [join(args.input_dirs, args.single_subject)]
         print(f"WARNING: only running --single_subject {args.single_subject}")
-    
-    # Assign parallel workers
     results =  []
     for input_dir in input_dirs:
         output_dir = join(args.output_dirs, basename(input_dir))
