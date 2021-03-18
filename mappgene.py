@@ -12,7 +12,7 @@ class ArgsObject:
     def __init__(self, **entries):
         self.__dict__.update(entries)
 
-if len(sys.argv) == 2 and sys.argv[1] not in ['-h', '--help', '-f', '--force']:
+if len(sys.argv) == 2 and sys.argv[1] not in ['-h', '--help', '-f', '--force', '--local']:
     config_json = sys.argv[1]
     with open(config_json) as f:
         raw_args = json.load(f)
@@ -24,6 +24,7 @@ else:
     parser.add_argument('--input_dirs', '-i', help='Path to inputs. Subdirectories must contain subject genomes in FASTQ format.')
     parser.add_argument('--output_dirs', '-o', help='Path to outputs.')
     parser.add_argument('--nnodes', '-n', help='Number of nodes.')
+    parser.add_argument('--local', help='Run only on local threads (for debugging).', action='store_true')
     parser.add_argument('--bank', '-b', help='Bank to charge for jobs.')
     parser.add_argument('--partition', '-p', help='Scheduler partition to assign jobs.')
     parser.add_argument('--force', '-f', help='Overwrite existing outputs.', action='store_true')
@@ -38,6 +39,7 @@ parse_default('output_dirs', 'output/', args, pending_args)
 parse_default('bank', 'asccasc', args, pending_args)
 parse_default('partition', 'pbatch', args, pending_args)
 parse_default('force', False, args, pending_args)
+parse_default('local', False, args, pending_args)
 parse_default('container', "container/image.sif", args, pending_args)
 parse_default('nnodes', 1, args, pending_args)
 parse_default('walltime', '11:59:00', args, pending_args)
@@ -54,22 +56,24 @@ if __name__ == '__main__':
     copy_tree('vpipe_files', join(git_dir))
     run(f'sh -c "cd {git_dir} && sh init_project.sh" || true', git_params)
 
-    # executor = ThreadPoolExecutor(label="worker")
-    executor = HighThroughputExecutor(
-        label="worker",
-        address=address_by_hostname(),
-        provider=SlurmProvider(
-            args.partition,
-            launcher=parsl.launchers.SrunLauncher(),
-            nodes_per_block=args.nnodes,
-            init_blocks=1,
-            max_blocks=1,
-            worker_init=f"export PYTHONPATH=$PYTHONPATH:{os.getcwd()}",
-            walltime=args.walltime,
-            scheduler_options="#SBATCH --exclusive\n#SBATCH -A {}\n".format(args.bank),
-            move_files=False,
-        ),
-    )
+    if args.local:
+        executor = ThreadPoolExecutor(label="worker")
+    else:
+        executor = HighThroughputExecutor(
+            label="worker",
+            address=address_by_hostname(),
+            provider=SlurmProvider(
+                args.partition,
+                launcher=parsl.launchers.SrunLauncher(),
+                nodes_per_block=args.nnodes,
+                init_blocks=1,
+                max_blocks=1,
+                worker_init=f"export PYTHONPATH=$PYTHONPATH:{os.getcwd()}",
+                walltime=args.walltime,
+                scheduler_options="#SBATCH --exclusive\n#SBATCH -A {}\n".format(args.bank),
+                move_files=False,
+            ),
+        )
     params = {
         'container': abspath(args.container),
         'git_dir': abspath(git_dir)
