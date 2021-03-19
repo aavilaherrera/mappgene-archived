@@ -78,7 +78,8 @@ if __name__ == '__main__':
         )
     params = {
         'container': abspath(args.container),
-        'git_dir': abspath(git_dir)
+        'git_dir': abspath(git_dir),
+        'read_length': args.read_length,
     }
 
     config = parsl.config.Config(executors=[executor])
@@ -108,7 +109,7 @@ if __name__ == '__main__':
             r = csv.reader(fr, delimiter='\t')
             w = csv.writer(fw, delimiter='\t')
             for row in r:
-                row.append(args.read_length)
+                row.append(params['read_length'])
                 w.writerow(row)
         smart_copy(f'{samples_tsv}.tmp', samples_tsv)
 
