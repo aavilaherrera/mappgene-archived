@@ -67,7 +67,7 @@ if __name__ == '__main__':
             provider=SlurmProvider(
                 args.partition,
                 launcher=parsl.launchers.SrunLauncher(),
-                nodes_per_block=args.nnodes,
+                nodes_per_block=int(args.nnodes),
                 init_blocks=1,
                 max_blocks=1,
                 worker_init=f"export PYTHONPATH=$PYTHONPATH:{os.getcwd()}",
@@ -118,7 +118,11 @@ if __name__ == '__main__':
         run(f'sh -c "cd {work_dir} && ./vpipe --cores {ncores} --use-conda"', params)
         time.sleep(10)
         smart_copy(join(work_dir, 'samples/a/b/alignments'), join(output_dir, 'alignments'))
-
+        smart_copy(join(work_dir, 'samples/a/b/variants'), join(output_dir, 'variants'))
+        smart_copy(join(work_dir, 'samples/a/b/extracted_data'), join(output_dir, 'extracted_data'), exclude=['*.gz', '*.fasta'])
+        smart_copy(join(work_dir, 'samples/a/b/preprocessed_data'), join(output_dir, 'preprocessed_data'), exclude=['*.gz', '*.fasta'])
+        smart_copy(join(work_dir, 'samples/a/b/raw_data'), join(output_dir, 'raw_data'), exclude=['*.gz', '*.fasta'])
+        smart_copy(join(work_dir, 'samples/a/b/references'), join(output_dir, 'references'), exclude=['*.gz', '*.fasta'])
     
     # Assign parallel workers
     input_dirs = glob(join(args.input_dirs, '*'))
