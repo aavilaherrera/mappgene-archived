@@ -1,4 +1,4 @@
-# Massively Parallel and Portable Genomic Sequence Analysis (mappgene)
+# Massively Parallel and Portable Genomic Sequence Analysis (Mappgene)
 
 Mappgene is a genomic sequence analysis workflow designed for high-performance computing. It currently wraps V-pipe (https://github.com/cbg-ethz/V-pipe) with a collection of useful scripts for deployment in almost any Linux environment. 
 
@@ -52,7 +52,6 @@ python3 mappgene.py \
 **OR**
 
 `python3 mappgene.py <config_json>`
-<br></br><br></br>
 
 <b>More info</b>
 
