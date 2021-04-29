@@ -4,11 +4,11 @@ Mappgene is a genomic sequence analysis workflow designed for high-performance c
 
 ## Quick Install
 
-`git lfs install`
-
-`git clone https://github.com/LLNL/mappgene.git`
-
-`pip3 install --user parsl`
+```
+git lfs install
+git clone https://github.com/LLNL/mappgene.git
+pip3 install --user parsl
+```
 
 ## Running
 
@@ -61,7 +61,7 @@ python3 mappgene.py \
 ## How it works
 
 1. V-pipe and other software have been pre-installed in a container (https://github.com/hpcng/singularity).
-2. User parameters are parsed from command-line or configuration JSON (see `configs/example/catalyst.json`). Note that every parameter has a default value (see `mappgene.py`).
+2. User parameters are parsed from command-line or configuration JSON (e.g. `configs/example/catalyst.json`). Note that every parameter has a default value (see `mappgene.py`).
 3. Software tasks are then distributed to compute nodes in parallel (https://github.com/Parsl/parsl).
 
 ## License
