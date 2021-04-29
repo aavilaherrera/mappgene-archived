@@ -66,6 +66,6 @@ python3 mappgene.py \
 
 ## License
 
-MaPPeRTrac is distributed under the terms of the BSD-3 License.
+Mappgene is distributed under the terms of the BSD-3 License.
 
 LLNL-CODE-821512
