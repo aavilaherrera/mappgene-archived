@@ -1,6 +1,7 @@
 .*
 *.stdout
 *.json
+!example/catalyst_config.json
 *.qsub
 *.core
 *.out
@@ -9,7 +10,6 @@ output/
 runinfo/
 tmp/
 cmd_parsl.auto*
-!examples/*.json
 !.gitignore
 !.gitattributes
 

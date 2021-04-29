@@ -1,18 +1,18 @@
-# mappgene
+# Massively Parallel and Portable Genomic Sequence Analysis (mappgene)
 
-Massively Parallel and Portable Genomic Sequence Analysis
-<br></br><br></br>
+Mappgene is a genomic sequence analysis workflow designed for high-performance computing. It currently wraps V-pipe (https://github.com/cbg-ethz/V-pipe) with a collection of useful scripts for deployment in almost any Linux environment. 
 
-## Installation
+## Quick Install
+
+`git lfs install`
 
 `git clone https://github.com/LLNL/mappgene.git`
 
 `pip3 install --user parsl`
-<br></br><br></br>
 
 ## Running
 
-### Prep
+### Organizing your data
 
 1. Copy your reference genome in `fasta` format to `vpipe_files/references/`.
 2. Inspect and configure `vpipe_files/vpipe.config` for your run (e.g.,
@@ -57,6 +57,12 @@ python3 mappgene.py \
 <b>More info</b>
 
 `python3 mappgene.py --help`
+
+## How it works
+
+1. V-pipe and other software have been pre-installed in a container (https://github.com/hpcng/singularity).
+2. User parameters are parsed from command-line or configuration JSON (see `example/catalyst_config.json`). Note that every parameter has a default value (see `mappgene.py`).
+3. Software tasks are then distributed to compute nodes in parallel (https://github.com/Parsl/parsl).
 
 ## License
 
