@@ -1,7 +1,7 @@
 .*
 *.stdout
 *.json
-!example/catalyst_config.json
+!configs/example/*.json
 *.qsub
 *.core
 *.out
