@@ -58,6 +58,16 @@ if __name__ == '__main__':
     run(f'cp -rf /opt/vpipe {git_dir}', git_params)
     copy_tree('vpipe_files', join(git_dir))
     run(f'sh -c "cd {git_dir} && sh init_project.sh" || true', git_params)
+    # prebuild vpipe's conda envs
+    # --conda-prefix must match the default in run_worker's invocation (/mnt/work_dir/.snakemake/conda)
+    # alternatively, this could be a shared location both times (e.g., /nfs/tmp/$USER/vpipe/conda)
+    run(f'sh -c "cd {git_dir} &&'
+             ' /opt/miniconda/envs/V-pipe/bin/snakemake --snakefile _prebuild_vpipe_envs.snakemake'
+             ' --use-conda --conda-prefix /mnt/work_dir/.snakemake/conda'
+             ' --cores 1"', git_params) # command is mangled based on git_params['sdir']: s,tmp,/mnt,g
+    smart_remove(join(git_dir, '.snakemake', 'conda'))
+    smart_mkdir(join(git_dir, '.snakemake', 'conda'))
+    copy_tree(join('tmp', 'work_dir', '.snakemake', 'conda'), join(git_dir, '.snakemake', 'conda'))
 
     if args.local:
         executor = ThreadPoolExecutor(label="worker")
@@ -116,6 +126,10 @@ if __name__ == '__main__':
 
         # Run V-pipe analysis
         ncores = int(math.floor(multiprocessing.cpu_count() / 2))
+        ## UNTESTED
+        ## if vpipe's conda envs are built into the container at /opt/vpipe/.snakemake/conda
+        #run(f'sh -c "cd {work_dir} && ./vpipe --cores {ncores} --use-conda --conda-prefix /opt/vpipe/.snakemake/conda"', params)
+        ## if vpipe's conda envs were built outside of the container to the dir bound to /mnt/work_dir/.snakemake/conda
         run(f'sh -c "cd {work_dir} && ./vpipe --cores {ncores} --use-conda"', params)
         time.sleep(10)
         smart_copy(join(work_dir, 'samples/a/b/alignments'), join(output_dir, 'alignments'))

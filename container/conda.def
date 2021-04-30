@@ -1,6 +1,10 @@
 Bootstrap: docker
 From: ubuntu:18.04
 
+%files
+    # build vpipe envs
+    vpipe_files/_prebuild_vpipe_envs.snakemake /tmp/
+
 %post
     MINICONDA=https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
     SNPEFF=https://snpeff.blob.core.windows.net/versions/snpEff_latest_core.zip
@@ -16,6 +20,16 @@ From: ubuntu:18.04
     conda init bash
     conda create -n V-pipe -c conda-forge -c bioconda python=3.8 snakemake-minimal=5.14.0
     git clone https://github.com/cbg-ethz/V-pipe.git /opt/vpipe
+
+    # build vpipe envs ------------------------------------------------------------
+    ## UNTESTED
+    ## echo '`snakemake --directory <workdir>` does not seem to do anything'
+    ## cd /opt/vpipe && pwd
+    ## /opt/miniconda/envs/V-pipe/bin/snakemake --snakefile /tmp/_prebuild_vpipe_envs.snakemake --use-conda --conda-prefix /opt/vpipe/.snakemake/conda
+    ## echo 'mappgene.py must invoke vpipe as `./vpipe --use-conda --conda-prefix /opt/vpipe/.snakemake/conda ...`'
+    ## cd - && pwd
+    # end build vpipe envs --------------------------------------------------------
+
     git clone https://github.com/BioInfoTools/BBMap.git /opt/bbmap
     wget --no-check-certificate $SNPEFF
     unzip snpEff_latest_core.zip -d /opt

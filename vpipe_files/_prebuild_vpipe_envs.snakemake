@@ -1,0 +1,35 @@
+# https://github.com/snakemake/snakemake/issues/352#issuecomment-629887403
+# https://github.com/snakemake/snakemake/issues/160
+# https://github.com/snakemake/snakemake/issues/185
+#
+# The absolute path to --conda-prefix (default: <workdir>/.snakemake/conda)
+# must be exactly the same as in mappgene.py's run() call that
+# invokes vpipe, i.e., vpipe's repo should be bound to /mnt/work_dir
+# OR --conda-prefix <vpipe_envs> should be the same as in the `conda.def`
+# that builds the singularity container.
+
+# //TODO: get names from envs/ automatically
+# 8fe2d3f69e014548e32369d4fa32fed3  .snakemake/conda/438bf6ab.yaml
+# 8fe2d3f69e014548e32369d4fa32fed3  envs/preprocessing.yaml
+# 9ddf13ebd255c9c0968dc99792606c51  .snakemake/conda/73f3faf0.yaml
+# 9ddf13ebd255c9c0968dc99792606c51  envs/bwa_align.yaml
+# b30e25686e09c27f9cbfe342428dd746  .snakemake/conda/e6fe5f0b.yaml
+# b30e25686e09c27f9cbfe342428dd746  envs/lofreq.yaml
+# c14582989388fa37a14b0589514ab4da  .snakemake/conda/94386dd1.yaml
+# c14582989388fa37a14b0589514ab4da  envs/sam2bam.yaml
+# dc316b0906fbd789576206b5e3158a26  .snakemake/conda/ed68608f.yaml
+# dc316b0906fbd789576206b5e3158a26  envs/smallgenomeutilities.yaml
+__vpipe_envs = ['preprocessing.yaml', 'bwa_align.yaml', 'lofreq.yaml',
+           'sam2bam.yaml', 'smallgenomeutilities.yaml']
+rule __prebuild_vpipe_envs:
+    input:
+        expand("created-{__env_name}", __env_name=__vpipe_envs)
+
+for __env in __vpipe_envs:
+    rule:
+        output:
+            temp("created-{}".format(__env))  # always rebuild?
+        conda:
+            "envs/{}".format(__env)
+        shell:
+            "touch {output}"
