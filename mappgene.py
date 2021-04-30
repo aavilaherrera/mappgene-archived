@@ -54,7 +54,8 @@ if __name__ == '__main__':
     smart_mkdir('tmp')
     git_dir = join('tmp', 'vpipe')
     git_params = {'sdir':git_dir, 'container':args.container}
-    run(f'git clone https://github.com/cbg-ethz/V-pipe.git {git_dir}', git_params)
+    # run(f'git clone https://github.com/cbg-ethz/V-pipe.git {git_dir}', git_params)
+    run(f'cp -rf /opt/vpipe {git_dir}', git_params)
     copy_tree('vpipe_files', join(git_dir))
     run(f'sh -c "cd {git_dir} && sh init_project.sh" || true', git_params)
 

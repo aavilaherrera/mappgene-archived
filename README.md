@@ -5,9 +5,9 @@ Mappgene is a genomic sequence analysis workflow designed for high-performance c
 ## Quick Install
 
 ```
+pip3 install --user parsl
 git lfs install
 git clone https://github.com/LLNL/mappgene.git
-pip3 install --user parsl
 ```
 
 ## Running
